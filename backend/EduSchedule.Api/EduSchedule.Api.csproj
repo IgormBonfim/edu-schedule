@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EduSchedule.Application\EduSchedule.Application.csproj" />
-    <ProjectReference Include="..\EduSchedule.Infrastructure\EduSchedule.Infrastructure.csproj" />
+    <ProjectReference Include="..\EduSchedule.Ioc\EduSchedule.Ioc.csproj" />
   </ItemGroup>
 
 </Project>
