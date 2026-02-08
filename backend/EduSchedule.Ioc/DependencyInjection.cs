@@ -1,4 +1,5 @@
 ﻿using EduSchedule.Infrastructure.Database;
+using EduSchedule.Ioc.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,8 @@ namespace EduSchedule.Ioc
                     b => b.MigrationsAssembly("EduSchedule.Infrastructure")
                 )
             );
+
+            services.AddGraph(configuration);
         }
     }
 }
