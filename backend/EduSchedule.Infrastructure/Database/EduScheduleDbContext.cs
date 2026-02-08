@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EduSchedule.Domain.Students.Entities;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 namespace EduSchedule.Infrastructure.Database
@@ -16,5 +17,7 @@ namespace EduSchedule.Infrastructure.Database
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
 
+        public DbSet<Student> Students { get; set; }
+        public DbSet<Event> Events { get; set; }
     }
 }

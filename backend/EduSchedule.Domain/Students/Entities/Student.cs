@@ -9,6 +9,7 @@ namespace EduSchedule.Domain.Students.Entities
         public string ExternalId { get; protected set; }
         public string DisplayName { get; protected set; }
         public string Email { get; protected set; }
+        public virtual ICollection<Event> Events { get; set; } = new List<Event>();
 
         protected Student() { }
 
