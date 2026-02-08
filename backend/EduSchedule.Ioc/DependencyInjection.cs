@@ -18,6 +18,7 @@ namespace EduSchedule.Ioc
             );
 
             services.AddGraph(configuration);
+            services.AddHangfire(configuration);
         }
     }
 }
