@@ -1,4 +1,7 @@
-﻿using EduSchedule.Infrastructure.Database;
+﻿using EduSchedule.Application.Students.Jobs.Interfaces;
+using EduSchedule.Application.Students.Services.Interfaces;
+using EduSchedule.Infrastructure.Database;
+using EduSchedule.Infrastructure.Jobs.Schedulers;
 using EduSchedule.Ioc.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +22,9 @@ namespace EduSchedule.Ioc
 
             services.AddGraph(configuration);
             services.AddHangfire(configuration);
+
+            services.AddScoped<ISyncStudentsAppService, SyncStudentsAppService>();
+            services.AddScoped<IStudentJobScheduler, HangfireStudentJobScheduler>();
         }
     }
 }

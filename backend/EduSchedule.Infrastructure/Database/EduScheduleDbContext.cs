@@ -1,4 +1,5 @@
-﻿using EduSchedule.Domain.Students.Entities;
+﻿using EduSchedule.Domain.States.Entities;
+using EduSchedule.Domain.Students.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -19,5 +20,6 @@ namespace EduSchedule.Infrastructure.Database
 
         public DbSet<Student> Students { get; set; }
         public DbSet<Event> Events { get; set; }
+        public DbSet<SyncState> SyncStates { get; set; }
     }
 }

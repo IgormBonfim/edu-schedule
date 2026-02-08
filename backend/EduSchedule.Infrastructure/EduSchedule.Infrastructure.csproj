@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.17.1" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
+    <PackageReference Include="Hangfire.SqlServer" Version="1.8.23" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.23" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.23">
       <PrivateAssets>all</PrivateAssets>
@@ -17,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EduSchedule.Domain\EduSchedule.Domain.csproj" />
+    <ProjectReference Include="..\EduSchedule.Application\EduSchedule.Application.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
