@@ -21,7 +21,7 @@ namespace EduSchedule.Application.Students.Services.Interfaces
             _graphService = graphService;
         }
 
-        public async Task StartSyncProcessAsync(CancellationToken cancellationToken = default)
+        public async Task StartStudensSyncProcessAsync(CancellationToken cancellationToken = default)
         {
             SyncState? state = await _syncStatesRepository.GetAsync(x => x.EntityName == STUDENT_ENTITY_NAME, cancellationToken);
             UsersDeltaResult usersDelta = await _graphService.GetUsersDeltaAsync(state?.DeltaToken, cancellationToken);
@@ -43,7 +43,7 @@ namespace EduSchedule.Application.Students.Services.Interfaces
             }
         }
 
-        public async Task SyncBatchStudentEventsAsync(IEnumerable<string> externalIds, CancellationToken cancellationToken = default)
+        public async Task SyncBatchStudentsAsync(IEnumerable<string> externalIds, CancellationToken cancellationToken = default)
         {
             foreach (string id in externalIds)
             {
