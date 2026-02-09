@@ -27,7 +27,6 @@ namespace EduSchedule.Ioc
             services.AddGraph(configuration);
             services.AddHangfire(configuration);
 
-
             services.AddScoped<ISyncStudentsAppService, SyncStudentsAppService>();
             services.AddScoped<ISyncStatesRepository, SyncStatesRepository>();
             services.AddScoped<IStudentJobScheduler, HangfireStudentJobScheduler>();
