@@ -31,5 +31,12 @@ namespace EduSchedule.Infrastructure.Database.Repositories
             await _context.SaveChangesAsync(cancellationToken);
             return entityEntry.Entity;
         }
+
+        public async Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default)
+        {
+            var entityEntry = _dbSet.Update(entity);
+            await _context.SaveChangesAsync(cancellationToken);
+            return entityEntry.Entity;
+        }
     }
 }

@@ -7,5 +7,6 @@ namespace EduSchedule.Domain.Repositories
         Task<T?> GetAsync(int id, CancellationToken cancellationToken = default);
         Task<T?> GetAsync(Expression<Func<T, bool>> expression, CancellationToken cancellationToken = default);
         Task<T> InsertAsync(T entity, CancellationToken cancellationToken = default);
+        Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default);
     }
 }
