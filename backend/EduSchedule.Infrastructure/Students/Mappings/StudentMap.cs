@@ -29,6 +29,9 @@ namespace EduSchedule.Infrastructure.Students.Mappings
                 .IsRequired();
 
             builder
+                .Property(x => x.EventsDeltaToken);
+
+            builder
                 .HasIndex(s =>  s.ExternalId)
                 .IsUnique();
 

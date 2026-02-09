@@ -12,7 +12,7 @@ namespace EduSchedule.Infrastructure.States.Mappings
             builder.HasKey(x => x.Id);
             
             builder.Property(x => x.EntityName).IsRequired().HasMaxLength(50);
-            builder.Property(x => x.DeltaLink).IsRequired();
+            builder.Property(x => x.DeltaToken).IsRequired();
         }
     }
 }

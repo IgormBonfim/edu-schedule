@@ -23,6 +23,7 @@ namespace EduSchedule.Infrastructure.Students.Mappings
                 .IsRequired()
                 .HasMaxLength(250);
 
+
             builder
                 .HasIndex(x => x.ExternalId)
                 .IsUnique();

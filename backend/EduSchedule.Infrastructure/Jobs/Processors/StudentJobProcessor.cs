@@ -14,7 +14,7 @@ namespace EduSchedule.Infrastructure.Jobs.Processors
         [Queue("student-sync")]
         public void ProcessBatchAsync(IEnumerable<string> externalIds)
         {
-            _syncStudentsAppService.SyncBatchStudentEventsAsync(externalIds);
+            _syncStudentsAppService.SyncBatchStudentsAsync(externalIds);
         }
     }
     

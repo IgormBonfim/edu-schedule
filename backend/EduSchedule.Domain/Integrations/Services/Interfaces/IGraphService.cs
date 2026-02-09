@@ -4,6 +4,6 @@ namespace EduSchedule.Domain.Integrations.Services.Interfaces
 {
     public interface IGraphService
     {
-        Task<UsersDeltaResult> GetUsersDeltaAsync(string? deltaToken, CancellationToken cancellationToken = default);
+        Task<UsersDeltaResult> GetUsersDeltaAsync(string? deltaToken = null, string? deltaLink = null, int top = 999, CancellationToken cancellationToken = default);
     }
 }

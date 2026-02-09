@@ -9,7 +9,7 @@ namespace EduSchedule.Worker.Jobs
         {   
             recurringJobManager.AddOrUpdate<ISyncStudentsAppService>(
                 "sync-students-orchestrator", 
-                service => service.StartSyncProcessAsync(), 
+                service => service.StartStudensSyncProcessAsync(default), 
                 Cron.Hourly);
         }
     }

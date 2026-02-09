@@ -9,6 +9,7 @@ namespace EduSchedule.Domain.Students.Entities
         public string ExternalId { get; protected set; }
         public string DisplayName { get; protected set; }
         public string Email { get; protected set; }
+        public string EventsDeltaToken { get; protected set; }
         public virtual ICollection<Event> Events { get; set; } = new List<Event>();
 
         protected Student() { }
@@ -42,6 +43,11 @@ namespace EduSchedule.Domain.Students.Entities
 
             if (!Regex.IsMatch(Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
                 throw new DomainException("The Email provided is not in a valid format.", "EMAIL_INVALID_FORMAT");
+        }
+
+        public void UpdateEventsDeltaToken(string eventsDeltaToken)
+        {
+            EventsDeltaToken = eventsDeltaToken;
         }
     }
 }

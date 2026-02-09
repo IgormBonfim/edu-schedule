@@ -1,9 +1,9 @@
-using EduSchedule.Infrastructure.Database.Models;
-using EduSchedule.Infrastructure.Database.Repositories.Interfaces;
+using EduSchedule.Domain.States.Entities;
+using EduSchedule.Domain.States.Repositories;
 
 namespace EduSchedule.Infrastructure.Database.Repositories
 {
-    public class SyncStatesRepository : Repository<SyncState>, ISyncStatesRepository
+    public class SyncStatesRepository : EFRepository<SyncState>, ISyncStatesRepository
     {
         public SyncStatesRepository(EduScheduleDbContext context) : base(context) { }
     }
