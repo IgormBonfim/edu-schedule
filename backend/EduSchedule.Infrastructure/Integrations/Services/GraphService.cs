@@ -34,10 +34,20 @@ namespace EduSchedule.Infrastructure.Integrations.Services
                 .WithUrl(requestUrl)
                 .GetAsDeltaGetResponseAsync(cancellationToken: cancellationToken);
 
-            if (response != null)
+            if (response?.Value != null)
             {
-                if (response.Value != null)
-                    changedUsers.AddRange(response.Value.Select(x => new UserResult(x.Id!, x.DisplayName!, x.Mail!)));
+                foreach (var user in response.Value)
+                {
+                    bool isDeleted = user.AdditionalData != null && 
+                                        user.AdditionalData.ContainsKey("@removed");
+
+                    changedUsers.Add(new UserResult(
+                        user.Id!, 
+                        user.DisplayName!, 
+                        user.Mail!, 
+                        isDeleted
+                    ));
+                }
                 
                 if (!string.IsNullOrEmpty(response.OdataDeltaLink))
                     nextDeltaToken = ExtractDeltaToken(response.OdataDeltaLink);
@@ -68,7 +78,7 @@ namespace EduSchedule.Infrastructure.Integrations.Services
             if (response == null)
                 return null;
 
-            return new UserResult(response.Id!, response.DisplayName!, response.Mail!);
+            return new UserResult(response.Id!, response.DisplayName!, response.Mail!, false);
         }
 
         private string ExtractDeltaToken(string? url)

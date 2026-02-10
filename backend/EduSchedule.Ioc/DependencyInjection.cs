@@ -2,10 +2,12 @@
 using EduSchedule.Application.Students.Services.Interfaces;
 using EduSchedule.Domain.Integrations.Services.Interfaces;
 using EduSchedule.Domain.States.Repositories;
+using EduSchedule.Domain.Students.Repositories;
 using EduSchedule.Infrastructure.Database;
 using EduSchedule.Infrastructure.Database.Repositories;
 using EduSchedule.Infrastructure.Integrations.Services;
 using EduSchedule.Infrastructure.Jobs.Schedulers;
+using EduSchedule.Infrastructure.Students.Repositories;
 using EduSchedule.Ioc.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +30,7 @@ namespace EduSchedule.Ioc
             services.AddHangfire(configuration);
 
             services.AddScoped<ISyncStudentsAppService, SyncStudentsAppService>();
+            services.AddScoped<IStudentsRepository, StudentsRepository>();
             services.AddScoped<ISyncStatesRepository, SyncStatesRepository>();
             services.AddScoped<IStudentJobScheduler, HangfireStudentJobScheduler>();
 

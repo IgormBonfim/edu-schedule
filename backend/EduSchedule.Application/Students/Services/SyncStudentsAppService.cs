@@ -3,6 +3,9 @@ using EduSchedule.Domain.Integrations.Models;
 using EduSchedule.Domain.Integrations.Services.Interfaces;
 using EduSchedule.Domain.States.Entities;
 using EduSchedule.Domain.States.Repositories;
+using EduSchedule.Domain.Students.Entities;
+using EduSchedule.Domain.Students.Repositories;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace EduSchedule.Application.Students.Services.Interfaces
@@ -13,14 +16,16 @@ namespace EduSchedule.Application.Students.Services.Interfaces
         private readonly ISyncStatesRepository _syncStatesRepository;
         private readonly IGraphService _graphService;
         private readonly ILogger<SyncStudentsAppService> _logger;
+        private readonly IServiceScopeFactory _scopeFactory;
         private const string STUDENT_ENTITY_NAME = "Students";
 
-        public SyncStudentsAppService(IStudentJobScheduler studentJobScheduler, ISyncStatesRepository syncStatesRepository, IGraphService graphService, ILogger<SyncStudentsAppService> logger)
+        public SyncStudentsAppService(IStudentJobScheduler studentJobScheduler, ISyncStatesRepository syncStatesRepository, IGraphService graphService, ILogger<SyncStudentsAppService> logger, IServiceScopeFactory scopeFactory)
         {
             _studentJobScheduler = studentJobScheduler;
             _syncStatesRepository = syncStatesRepository;
             _graphService = graphService;
             _logger = logger;
+            _scopeFactory = scopeFactory;
         }
 
         public async Task StartStudensSyncProcessAsync(CancellationToken cancellationToken = default)
@@ -87,7 +92,46 @@ namespace EduSchedule.Application.Students.Services.Interfaces
         {
             foreach (UserResult user in users)
             {
-                Console.WriteLine(user.Id);
+                await ProcessUserAsync(user, cancellationToken);
+            }
+        }
+
+        public async Task ProcessUserAsync(UserResult user, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var repo = scope.ServiceProvider.GetRequiredService<IStudentsRepository>();
+
+                    Student? student = await repo.GetAsync(x => x.ExternalId == user.Id);
+
+                    if (student is null)
+                    {
+                        if (user.IsDeleted) return;
+
+                        student = new Student(user.Id, user.DisplayName, user.Email);
+                        student = await repo.InsertAsync(student);
+                    }
+                    else
+                    {
+                        if (user.IsDeleted)
+                        {
+                            student.Inactivate();
+                        }
+                        else
+                        {
+                            student.Update(user.DisplayName, user.Email);
+                        }
+                        await repo.UpdateAsync(student, cancellationToken);
+                    }
+
+                    _logger.LogInformation("Usuário processado com sucesso. IdExterno: {idExterno}", user.Id);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ocorreu um erro ao processar o Estudante. IdExterno: {idExterno}", user.Id);
             }
         }
 

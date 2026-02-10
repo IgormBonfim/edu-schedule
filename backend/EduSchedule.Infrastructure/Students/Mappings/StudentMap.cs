@@ -29,10 +29,21 @@ namespace EduSchedule.Infrastructure.Students.Mappings
                 .IsRequired();
 
             builder
-                .Property(x => x.EventsDeltaToken);
+                .Property(s => s.IsActive)
+                .IsRequired();
+            
+            builder
+                .Property(s => s.CreatedAt)
+                .IsRequired();
 
             builder
-                .HasIndex(s =>  s.ExternalId)
+                .Property(s => s.UpdatedAt);
+
+            builder
+                .Property(s => s.EventsDeltaToken);
+
+            builder
+                .HasIndex(s => s.ExternalId)
                 .IsUnique();
 
             builder
