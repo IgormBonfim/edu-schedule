@@ -1,4 +1,5 @@
 using EduSchedule.Application.Students.Jobs.Interfaces;
+using EduSchedule.Domain.Integrations.Models;
 using EduSchedule.Domain.Integrations.Services.Interfaces;
 using EduSchedule.Domain.States.Entities;
 using EduSchedule.Domain.States.Repositories;
@@ -38,14 +39,14 @@ namespace EduSchedule.Application.Students.Services.Interfaces
                 {
                     var result = await _graphService.GetUsersDeltaAsync(currentDeltaToken, currentNextLink, cancellationToken: cancellationToken);
 
-                    if (result.ChangedIds.Any())
+                    if (result.ChangedUsers.Any())
                     {
-                        var chunks = result.ChangedIds.Chunk(100); 
+                        var chunks = result.ChangedUsers.Chunk(100); 
 
                         foreach (var chunk in chunks)
                         {
                             _studentJobScheduler.EnqueueStudentSyncBatch(chunk.ToList());
-                            _logger.LogInformation("Página processada: {Count} IDs enviados para processamento.", result.ChangedIds.Count());
+                            _logger.LogInformation("Página processada: {Count} IDs enviados para processamento.", result.ChangedUsers.Count());
                         }
                     }
 
@@ -82,11 +83,11 @@ namespace EduSchedule.Application.Students.Services.Interfaces
             }
         }
 
-        public async Task SyncBatchStudentsAsync(IEnumerable<string> externalIds, CancellationToken cancellationToken = default)
+        public async Task SyncBatchStudentsAsync(IEnumerable<UserResult> users, CancellationToken cancellationToken = default)
         {
-            foreach (string id in externalIds)
+            foreach (UserResult user in users)
             {
-                Console.WriteLine(id);
+                Console.WriteLine(user.Id);
             }
         }
 

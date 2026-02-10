@@ -1,4 +1,5 @@
 using EduSchedule.Application.Students.Jobs.Interfaces;
+using EduSchedule.Domain.Integrations.Models;
 using EduSchedule.Infrastructure.Jobs.Processors;
 using Hangfire;
 
@@ -13,9 +14,9 @@ namespace EduSchedule.Infrastructure.Jobs.Schedulers
             _client = client;
         }
 
-        public void EnqueueStudentSyncBatch(IEnumerable<string> externalIds)
+        public void EnqueueStudentSyncBatch(IEnumerable<UserResult> users)
         {
-            _client.Enqueue<StudentJobProcessor>(job => job.ProcessBatchAsync(externalIds));
+            _client.Enqueue<StudentJobProcessor>(job => job.ProcessBatchAsync(users));
         }
     }
 }

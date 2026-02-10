@@ -2,6 +2,7 @@ using System.Web;
 using EduSchedule.Domain.Integrations.Models;
 using EduSchedule.Domain.Integrations.Services.Interfaces;
 using Microsoft.Graph;
+using Microsoft.Graph.Models;
 
 namespace EduSchedule.Infrastructure.Integrations.Services
 {
@@ -17,15 +18,15 @@ namespace EduSchedule.Infrastructure.Integrations.Services
 
         public async Task<UsersDeltaResult> GetUsersDeltaAsync(string? deltaToken = null, string? deltaLink = null, int top = 999, CancellationToken cancellationToken = default)
         {
-            var changedIds = new List<string>();
+            var changedUsers = new List<UserResult>();
             string nextDeltaToken = string.Empty;
 
-            string requestUrl = deltaLink;
+            string? requestUrl = deltaLink;
 
             if (string.IsNullOrEmpty(requestUrl))
             {
                 requestUrl = string.IsNullOrEmpty(deltaToken) 
-                    ? $"{GRAPH_URL}users/delta?$select=id&$top={top}"
+                    ? $"{GRAPH_URL}users/delta?$select=id,displayName,mail&$top={top}"
                     : $"{GRAPH_URL}users/delta?deltatoken={deltaToken}";
             }
 
@@ -36,18 +37,18 @@ namespace EduSchedule.Infrastructure.Integrations.Services
             if (response != null)
             {
                 if (response.Value != null)
-                    changedIds.AddRange(response.Value.Select(u => u.Id!));
+                    changedUsers.AddRange(response.Value.Select(x => new UserResult(x.Id!, x.DisplayName!, x.Mail!)));
                 
                 if (!string.IsNullOrEmpty(response.OdataDeltaLink))
                     nextDeltaToken = ExtractDeltaToken(response.OdataDeltaLink);
 
-                return new UsersDeltaResult(changedIds, nextDeltaToken, response.OdataNextLink);
+                return new UsersDeltaResult(changedUsers, nextDeltaToken, response.OdataNextLink);
             }
             
-            return new UsersDeltaResult(changedIds, null, null);
+            return new UsersDeltaResult(changedUsers, null, null);
         }
 
-        public async Task<EventsDeltaResults> GetEventsDeltaAsync(string studentId, string? deltaToken, CancellationToken cancellationToken = default)
+        public async Task<EventsDeltaResult> GetEventsDeltaAsync(string studentId, string? deltaToken, CancellationToken cancellationToken = default)
         {
             string requestUrl = string.IsNullOrEmpty(deltaToken)
                 ? $"{GRAPH_URL}users/{studentId}/events/delta"
@@ -58,6 +59,16 @@ namespace EduSchedule.Infrastructure.Integrations.Services
                 .GetAsDeltaGetResponseAsync(cancellationToken: cancellationToken);
 
             throw new Exception();
+        }
+
+        public async Task<UserResult?> GetUserAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            var response = await _graphClient.Users[userId].GetAsync();
+
+            if (response == null)
+                return null;
+
+            return new UserResult(response.Id!, response.DisplayName!, response.Mail!);
         }
 
         private string ExtractDeltaToken(string? url)

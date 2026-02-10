@@ -1,6 +1,6 @@
 namespace EduSchedule.Domain.Integrations.Models
 {
-    public class EventsDeltaResults
+    public class EventsDeltaResult
     {
         
     }

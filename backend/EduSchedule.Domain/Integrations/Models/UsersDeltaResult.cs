@@ -1,7 +1,7 @@
 namespace EduSchedule.Domain.Integrations.Models;
 
 public record UsersDeltaResult(
-    IEnumerable<string> ChangedIds, 
+    IEnumerable<UserResult> ChangedUsers, 
     string? NextDeltaToken,
     string? NextDeltaLink
 );
