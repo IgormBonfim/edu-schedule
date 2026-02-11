@@ -16,19 +16,16 @@ namespace EduSchedule.Infrastructure.Integrations.Services
             _graphClient = graphClient;
         }
 
-        public async Task<UsersDeltaResult> GetUsersDeltaAsync(string? deltaToken = null, string? deltaLink = null, int top = 999, CancellationToken cancellationToken = default)
+        public async Task<UsersDeltaResult> GetUsersDeltaAsync(string? deltaLink = null, int top = 999, CancellationToken cancellationToken = default)
         {
             var changedUsers = new List<UserResult>();
-            string nextDeltaToken = string.Empty;
+            string? nextDeltaLink = null;
+            string? nextDeltaToken = null;
 
             string? requestUrl = deltaLink;
 
             if (string.IsNullOrEmpty(requestUrl))
-            {
-                requestUrl = string.IsNullOrEmpty(deltaToken) 
-                    ? $"{GRAPH_URL}users/delta?$select=id,displayName,mail&$top={top}"
-                    : $"{GRAPH_URL}users/delta?deltatoken={deltaToken}";
-            }
+                requestUrl = $"{GRAPH_URL}users/delta?$select=id,displayName,mail&$top={top}";
 
             var response = await _graphClient.Users.Delta
                 .WithUrl(requestUrl)
@@ -49,10 +46,14 @@ namespace EduSchedule.Infrastructure.Integrations.Services
                     ));
                 }
                 
+                nextDeltaLink = response.OdataNextLink;
                 if (!string.IsNullOrEmpty(response.OdataDeltaLink))
+                {
+                    nextDeltaLink = response.OdataDeltaLink;
                     nextDeltaToken = ExtractDeltaToken(response.OdataDeltaLink);
+                }
 
-                return new UsersDeltaResult(changedUsers, nextDeltaToken, response.OdataNextLink);
+                return new UsersDeltaResult(changedUsers, nextDeltaToken, nextDeltaLink);
             }
             
             return new UsersDeltaResult(changedUsers, null, null);

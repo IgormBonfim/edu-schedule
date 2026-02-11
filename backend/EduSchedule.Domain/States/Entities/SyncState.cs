@@ -4,19 +4,19 @@ namespace EduSchedule.Domain.States.Entities
     {
         public int Id { get; set; }
         public string EntityName { get; set; }
-        public string DeltaToken { get; set; }
+        public string NextLink { get; set; }
         public DateTime LastSync { get; set; }
 
-        public SyncState(string entityName, string deltaToken)
+        public SyncState(string entityName, string nextLink)
         {
             EntityName = entityName;
-            DeltaToken = deltaToken;
+            NextLink = nextLink;
             LastSync = DateTime.Now;
         }
 
-        public void UpdateDeltaToken(string deltaToken)
+        public void UpdateNextLink(string nextLink)
         {
-            DeltaToken = deltaToken;
+            NextLink = nextLink;
             LastSync = DateTime.Now;
         }
     }

@@ -36,49 +36,44 @@ namespace EduSchedule.Application.Students.Services.Interfaces
             {
                 SyncState? state = await _syncStatesRepository.GetAsync(x => x.EntityName == STUDENT_ENTITY_NAME, cancellationToken);
             
-                string? currentDeltaToken = state?.DeltaToken;
-                string? currentNextLink = null;
-                string finalDeltaToken = string.Empty;
+                string? deltaToken = null;
+                string? nextDeltaLink = state?.NextLink;
+                int totalUsersInserted = 0;
+                const int CHECKPOINT_THRESHOLD = 5000;
 
                 do
                 {
-                    var result = await _graphService.GetUsersDeltaAsync(currentDeltaToken, currentNextLink, cancellationToken: cancellationToken);
+                    var result = await _graphService.GetUsersDeltaAsync(nextDeltaLink, cancellationToken: cancellationToken);
 
                     if (result.ChangedUsers.Any())
                     {
-                        var chunks = result.ChangedUsers.Chunk(100); 
+                        var chunks = result.ChangedUsers.Chunk(100).ToList();
 
-                        foreach (var chunk in chunks)
+                        foreach (var chunk in result.ChangedUsers.Chunk(100))                    
                         {
-                            _studentJobScheduler.EnqueueStudentSyncBatch(chunk.ToList());
-                            _logger.LogInformation("Página processada: {Count} IDs enviados para processamento.", result.ChangedUsers.Count());
+                            var usersList = chunk.ToList();
+                            _studentJobScheduler.EnqueueStudentSyncBatch(usersList);
+
+                            if (totalUsersInserted >= CHECKPOINT_THRESHOLD && !string.IsNullOrEmpty(result.NextDeltaLink))
+                            {
+                                totalUsersInserted = 0;
+                                state = await SaveSyncStateAsync(state, result.NextDeltaLink, cancellationToken);
+                                await _syncStatesRepository.UpdateAsync(state);
+                            }
+
+                            totalUsersInserted += usersList.Count;
                         }
                     }
 
-                    if (!string.IsNullOrEmpty(result.NextDeltaToken))
-                    {
-                        finalDeltaToken = result.NextDeltaToken;
-                    }
+                    nextDeltaLink = result.NextDeltaLink;
+                    deltaToken = result.NextDeltaToken; 
 
-                    currentNextLink = result.NextDeltaLink;
-                    
-                    currentDeltaToken = null; 
-
-                } while (!string.IsNullOrEmpty(currentNextLink));
+                } while (string.IsNullOrEmpty(deltaToken));
 
                 _logger.LogInformation("Sincronismo finalizado. Novo DeltaToken capturado.");
-                if (!string.IsNullOrEmpty(finalDeltaToken))
+                if (!string.IsNullOrEmpty(nextDeltaLink))
                 {
-                    if (state != null)
-                    {
-                        state.UpdateDeltaToken(finalDeltaToken);
-                        await _syncStatesRepository.UpdateAsync(state, cancellationToken);
-                    }
-                    else
-                    {
-                        state = new SyncState(STUDENT_ENTITY_NAME, finalDeltaToken);
-                        await _syncStatesRepository.InsertAsync(state, cancellationToken);
-                    }
+                    await SaveSyncStateAsync(state, nextDeltaLink, cancellationToken);
                 }
             }
             catch (Exception ex)
@@ -86,6 +81,22 @@ namespace EduSchedule.Application.Students.Services.Interfaces
                 _logger.LogError(ex, "Falha ao sincronizar estudantes.");
                 throw;
             }
+        }
+
+        private async Task<SyncState> SaveSyncStateAsync(SyncState? state, string nextDeltaLink, CancellationToken cancellationToken = default)
+        {
+            if (state != null)
+            {
+                state.UpdateNextLink(nextDeltaLink);
+                await _syncStatesRepository.UpdateAsync(state, cancellationToken);
+            }
+            else
+            {
+                state = new SyncState(STUDENT_ENTITY_NAME, nextDeltaLink);
+                await _syncStatesRepository.InsertAsync(state, cancellationToken);
+            }
+
+            return state;
         }
 
         public async Task SyncBatchStudentsAsync(IEnumerable<UserResult> users, CancellationToken cancellationToken = default)
