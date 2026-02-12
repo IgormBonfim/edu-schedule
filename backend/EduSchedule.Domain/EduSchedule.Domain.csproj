@@ -11,6 +11,8 @@
     <Folder Include="Auth/Services/" />
     <Folder Include="Auth/Services/Interfaces/" />
     <Folder Include="Generics/Models/" />
+    <Folder Include="Students/Services/" />
+    <Folder Include="Students/Services/Interfaces/" />
   </ItemGroup>
 
 </Project>

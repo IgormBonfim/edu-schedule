@@ -7,6 +7,8 @@ using EduSchedule.Domain.Auth.Services.Interfaces;
 using EduSchedule.Domain.Integrations.Services.Interfaces;
 using EduSchedule.Domain.States.Repositories;
 using EduSchedule.Domain.Students.Repositories;
+using EduSchedule.Domain.Students.Services;
+using EduSchedule.Domain.Students.Services.Interfaces;
 using EduSchedule.Infrastructure.Auth.Services;
 using EduSchedule.Infrastructure.Database;
 using EduSchedule.Infrastructure.Database.Repositories;
@@ -36,6 +38,7 @@ namespace EduSchedule.Ioc
 
             services.AddScoped<IStudentsAppService, StudentsAppService>();
             services.AddScoped<ISyncStudentsAppService, SyncStudentsAppService>();
+            services.AddScoped<IStudentsService, StudentsService>();
             services.AddScoped<IStudentsRepository, StudentsRepository>();
             services.AddScoped<ISyncStatesRepository, SyncStatesRepository>();
             services.AddScoped<IStudentJobScheduler, HangfireStudentJobScheduler>();

@@ -7,4 +7,5 @@ namespace EduSchedule.Application.Students.Services.Interfaces;
 public interface IStudentsAppService
 {
     Task<PaginatedResponse<StudentResponse>> GetStudentsAsync(ListStudentsRequest request, CancellationToken cancellationToken = default);
+    Task<IEnumerable<EventResponse>> GetStudentEventsAsync(int id, CancellationToken cancellationToken = default);
 }

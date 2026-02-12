@@ -25,5 +25,9 @@ namespace EduSchedule.Infrastructure.Students.Repositories
             return await _dbSet.Include(x => x.Events).FirstOrDefaultAsync(x => x.ExternalId == externaId, cancellationToken);
         }
 
+        public async Task<Student?> GetWithEventsAsync(int id, CancellationToken cancellationToken = default)
+        {
+            return await _dbSet.Include(x => x.Events).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        }
     }
 }

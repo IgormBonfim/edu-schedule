@@ -4,19 +4,31 @@ using EduSchedule.Application.Students.Dtos.Responses;
 using EduSchedule.Application.Students.Services.Interfaces;
 using EduSchedule.Domain.Students.Entities;
 using EduSchedule.Domain.Students.Repositories;
+using EduSchedule.Domain.Students.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace EduSchedule.Application.Students.Services;
 
 public class StudentsAppService : IStudentsAppService
 {
+    private readonly IStudentsService _studentsService;
     private readonly IStudentsRepository _studentsRepository;
     private readonly ILogger<StudentsAppService> _logger;
 
-    public StudentsAppService(IStudentsRepository studentsRepository, ILogger<StudentsAppService> logger)
+    public StudentsAppService(IStudentsService studentsService, IStudentsRepository studentsRepository, ILogger<StudentsAppService> logger)
     {
+        _studentsService = studentsService;
         _studentsRepository = studentsRepository;
         _logger = logger;
+    }
+
+    public async Task<IEnumerable<EventResponse>> GetStudentEventsAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var student = await _studentsService.GetValidWithEventsAsync(id, cancellationToken);
+
+        var values = student.Events.Select(x => new EventResponse(x.Id, x.ExternalId, x.Subject, x.StartTime, x.EndTime));
+
+        return values;
     }
 
     public async Task<PaginatedResponse<StudentResponse>> GetStudentsAsync(ListStudentsRequest request, CancellationToken cancellationToken = default)

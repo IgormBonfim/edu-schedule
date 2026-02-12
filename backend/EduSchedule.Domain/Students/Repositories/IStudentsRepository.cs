@@ -7,5 +7,6 @@ namespace EduSchedule.Domain.Students.Repositories
     {
         Task<List<Student>> GetStudentsBatchAsync(int skip, int take, CancellationToken cancellationToken = default);
         Task<Student?> GetWithEventsAsync(string externaId, CancellationToken cancellationToken = default);
+        Task<Student?> GetWithEventsAsync(int id, CancellationToken cancellationToken = default);
     }
 }
