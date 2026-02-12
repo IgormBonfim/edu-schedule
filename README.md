@@ -81,7 +81,7 @@ SECURITY_KEY=
 Na raiz do projeto (onde está o arquivo `docker-compose.yml`), execute o comando:
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 Isso irá subir:
