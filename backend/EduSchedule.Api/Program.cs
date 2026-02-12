@@ -1,3 +1,4 @@
+using EduSchedule.Api.Extensions;
 using EduSchedule.Ioc;
 using Hangfire;
 
@@ -8,9 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSwagger();
 
 builder.Services.RegisterServices(builder.Configuration);
-
+builder.Services.AddAuth(builder.Configuration);
+builder.Services.AddCorsPolicy();
 
 var app = builder.Build();
 
@@ -22,6 +25,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHangfireDashboard("/hangfire");
+
+app.UseCors("DefaultPolicy");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
