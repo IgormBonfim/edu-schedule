@@ -7,7 +7,7 @@ namespace EduSchedule.Infrastructure.Database.Repositories
     public class EFRepository<T> : IRepository<T> where T : class
     {
         private readonly EduScheduleDbContext _context;
-        private readonly DbSet<T> _dbSet;
+        public readonly DbSet<T> _dbSet;
 
         public EFRepository(EduScheduleDbContext context)
         {
@@ -37,6 +37,16 @@ namespace EduSchedule.Infrastructure.Database.Repositories
             var entityEntry = _dbSet.Update(entity);
             await _context.SaveChangesAsync(cancellationToken);
             return entityEntry.Entity;
+        }
+
+        public IQueryable<T> Query()
+        {
+            return _dbSet.AsQueryable();
+        }
+
+        public async Task<IEnumerable<T>> ListarAsync(IQueryable<T> query, CancellationToken cancellationToken = default)
+        {
+            return await query.ToListAsync(cancellationToken);
         }
     }
 }

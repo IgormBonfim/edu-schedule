@@ -23,6 +23,16 @@ namespace EduSchedule.Infrastructure.Students.Mappings
                 .IsRequired()
                 .HasMaxLength(250);
 
+            builder
+                .Property(s => s.IsActive)
+                .IsRequired();
+            
+            builder
+                .Property(s => s.CreatedAt)
+                .IsRequired();
+
+            builder
+                .Property(s => s.UpdatedAt);
 
             builder
                 .HasIndex(x => x.ExternalId)

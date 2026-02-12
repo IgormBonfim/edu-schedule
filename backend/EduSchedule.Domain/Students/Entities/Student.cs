@@ -1,18 +1,16 @@
 ﻿using EduSchedule.Domain.Exceptions;
+using EduSchedule.Domain.Generics.Entities;
 using System.Text.RegularExpressions;
 
 namespace EduSchedule.Domain.Students.Entities
 {
-    public class Student
+    public class Student : Entity
     {
         public int Id { get; protected set; }
         public string ExternalId { get; protected set; }
         public string DisplayName { get; protected set; }
         public string Email { get; protected set; }
         public string? EventsDeltaToken { get; protected set; }
-        public bool IsActive { get; protected set; }
-        public DateTime CreatedAt { get; protected set; }
-        public DateTime? UpdatedAt { get; protected set; }
         public virtual ICollection<Event> Events { get; set; } = new List<Event>();
 
         protected Student() { }
@@ -58,7 +56,7 @@ namespace EduSchedule.Domain.Students.Entities
             Validate();
         }
 
-        public void UpdateEventsDeltaToken(string eventsDeltaToken)
+        public void UpdateEventsDeltaToken(string? eventsDeltaToken)
         {
             EventsDeltaToken = eventsDeltaToken;
         }

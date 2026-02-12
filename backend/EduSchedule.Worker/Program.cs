@@ -8,7 +8,7 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.RegisterServices(builder.Configuration);
 
 builder.Services.AddHangfireServer(options => {
-    options.Queues = new[] { "student-sync", "default" };
+    options.Queues = new[] { "student-sync", "events-sync", "default" };
     options.WorkerCount = 10;
 });
 

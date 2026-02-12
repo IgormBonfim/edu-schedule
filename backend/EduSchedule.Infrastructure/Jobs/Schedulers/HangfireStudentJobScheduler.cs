@@ -18,5 +18,10 @@ namespace EduSchedule.Infrastructure.Jobs.Schedulers
         {
             _client.Enqueue<StudentJobProcessor>(job => job.ProcessBatchAsync(users));
         }
+
+        public void EnqueueStudentSyncEventsBatch(int skip, int take)
+        {
+            _client.Enqueue<StudentJobProcessor>(job => job.ProcessEventsBatchAsync(skip, take));
+        }
     }
 }

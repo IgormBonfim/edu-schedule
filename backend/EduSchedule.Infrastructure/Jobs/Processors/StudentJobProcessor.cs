@@ -15,8 +15,13 @@ namespace EduSchedule.Infrastructure.Jobs.Processors
         [Queue("student-sync")]
         public void ProcessBatchAsync(IEnumerable<UserResult> users)
         {
-            _syncStudentsAppService.SyncBatchStudentsAsync(users);
+            _syncStudentsAppService.SyncBatchStudentsAsync(users, default);
+        }
+
+        [Queue("events-sync")]
+        public void ProcessEventsBatchAsync(int skip, int take)
+        {
+            _syncStudentsAppService.SyncBatchStudentsEventsAsync(skip, take, default);
         }
     }
-    
 }

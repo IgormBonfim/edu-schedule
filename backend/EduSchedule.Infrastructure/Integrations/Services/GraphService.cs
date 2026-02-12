@@ -16,7 +16,7 @@ namespace EduSchedule.Infrastructure.Integrations.Services
             _graphClient = graphClient;
         }
 
-        public async Task<UsersDeltaResult> GetUsersDeltaAsync(string? deltaLink = null, int top = 999, CancellationToken cancellationToken = default)
+        public async Task<DeltaResults<UserResult>> GetUsersDeltaAsync(string? deltaLink = null, int top = 999, CancellationToken cancellationToken = default)
         {
             var changedUsers = new List<UserResult>();
             string? nextDeltaLink = null;
@@ -53,23 +53,56 @@ namespace EduSchedule.Infrastructure.Integrations.Services
                     nextDeltaToken = ExtractDeltaToken(response.OdataDeltaLink);
                 }
 
-                return new UsersDeltaResult(changedUsers, nextDeltaToken, nextDeltaLink);
+                return new DeltaResults<UserResult>(changedUsers, nextDeltaToken, nextDeltaLink);
             }
             
-            return new UsersDeltaResult(changedUsers, null, null);
+            return new DeltaResults<UserResult>(changedUsers, null, null);
         }
 
-        public async Task<EventsDeltaResult> GetEventsDeltaAsync(string studentId, string? deltaToken, CancellationToken cancellationToken = default)
+        public async Task<DeltaResults<EventResult>> GetUserEventsDeltaAsync(
+            string studentId, 
+            string? deltaLink = null, 
+            CancellationToken cancellationToken = default)
         {
-            string requestUrl = string.IsNullOrEmpty(deltaToken)
-                ? $"{GRAPH_URL}users/{studentId}/events/delta"
-                : $"{GRAPH_URL}users/{studentId}/events/delta?deltatoken={deltaToken}";
+            var changedEvents = new List<EventResult>();
+            string? requestUrl = deltaLink;
 
-            var response = await _graphClient.Users[studentId].Events.Delta
+            if (string.IsNullOrEmpty(requestUrl))
+            {
+                var start = "2000-01-01T00:00:00Z";
+                var end = "2026-12-31T23:59:59Z";
+                
+                requestUrl = $"{GRAPH_URL}users/{studentId}/calendarView/delta" +
+                            $"?startDateTime={start}&endDateTime={end}" +
+                            "&$select=id,subject,start,end";
+            }
+
+            var response = await _graphClient.Users[studentId].CalendarView.Delta
                 .WithUrl(requestUrl)
                 .GetAsDeltaGetResponseAsync(cancellationToken: cancellationToken);
 
-            throw new Exception();
+            if (response?.Value != null)
+            {
+                foreach (var ev in response.Value)
+                {
+                    bool isDeleted = ev.AdditionalData != null && 
+                                    ev.AdditionalData.ContainsKey("@removed");
+
+                    changedEvents.Add(new EventResult(
+                        ev.Id!,
+                        ev.Subject ?? "Sem Assunto",
+                        ev.Start?.ToDateTimeOffset(),
+                        ev.End?.ToDateTimeOffset(),
+                        isDeleted
+                    ));
+                }
+
+                var nextLink = response.OdataNextLink ?? response.OdataDeltaLink;
+
+                return new DeltaResults<EventResult>(changedEvents, response.OdataDeltaLink, nextLink);
+            }
+
+            return new DeltaResults<EventResult>(changedEvents, null, null);
         }
 
         public async Task<UserResult?> GetUserAsync(string userId, CancellationToken cancellationToken = default)

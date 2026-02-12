@@ -1,6 +1,8 @@
+using System.Collections.Frozen;
 using EduSchedule.Application.Students.Jobs.Interfaces;
 using EduSchedule.Domain.Integrations.Models;
 using EduSchedule.Domain.Integrations.Services.Interfaces;
+using EduSchedule.Domain.Repositories;
 using EduSchedule.Domain.States.Entities;
 using EduSchedule.Domain.States.Repositories;
 using EduSchedule.Domain.Students.Entities;
@@ -45,11 +47,11 @@ namespace EduSchedule.Application.Students.Services.Interfaces
                 {
                     var result = await _graphService.GetUsersDeltaAsync(nextDeltaLink, cancellationToken: cancellationToken);
 
-                    if (result.ChangedUsers.Any())
+                    if (result.ChangedValues.Any())
                     {
-                        var chunks = result.ChangedUsers.Chunk(100).ToList();
+                        var chunks = result.ChangedValues.Chunk(100).ToList();
 
-                        foreach (var chunk in result.ChangedUsers.Chunk(100))                    
+                        foreach (var chunk in result.ChangedValues.Chunk(100))                    
                         {
                             var usersList = chunk.ToList();
                             _studentJobScheduler.EnqueueStudentSyncBatch(usersList);
@@ -146,9 +148,93 @@ namespace EduSchedule.Application.Students.Services.Interfaces
             }
         }
 
-        public Task StartEventsSyncProcessAsync(CancellationToken cancellationToken = default)
+        public async Task StartEventsSyncProcessAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var repo = scope.ServiceProvider.GetRequiredService<IStudentsRepository>();
+                int batchSize = 1000;
+                int skip = 0;
+                bool hasMore = true;
+
+                while (hasMore)
+                {
+                    var students = await repo.GetStudentsBatchAsync(skip, batchSize, cancellationToken);
+
+                    if (students.Any())
+                    {
+                        _studentJobScheduler.EnqueueStudentSyncEventsBatch(skip, batchSize);
+
+                        skip += batchSize;
+                        _logger.LogInformation("StartEventsSyncProcessAsync: {Skip} usuários enfileirados...", skip);
+                    }
+                    else
+                    {
+                        hasMore = false;
+                    }
+                }
+            }
+        }
+
+        public async Task SyncBatchStudentsEventsAsync(int skip, int take, CancellationToken cancellationToken = default)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var repo = scope.ServiceProvider.GetRequiredService<IStudentsRepository>();
+                var students = await repo.GetStudentsBatchAsync(skip, take, cancellationToken);
+
+                foreach (var student in students)
+                {
+                    try
+                    {
+                        var updatedStudent = await ProcessStudentEventsAsync(student, cancellationToken);
+                        await repo.UpdateAsync(updatedStudent);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Erro ao sincronizar eventos do aluno {ExternalId}", student.ExternalId);                
+                    } 
+                }
+            }
+        }
+
+        private async Task<Student> ProcessStudentEventsAsync(Student student, CancellationToken cancellationToken = default)
+        {
+            string? currentToken = student.EventsDeltaToken;
+            DeltaResults<EventResult> results;
+
+            do
+            {
+                results = await _graphService.GetUserEventsDeltaAsync(student.ExternalId, currentToken, cancellationToken);
+                _logger.LogInformation("Aluno {Id} retornou {Count} eventos do Graph.", student.ExternalId, results.ChangedValues.Count());
+                if (results.ChangedValues.Any())
+                {
+                    foreach (var eventResult in results.ChangedValues)
+                    {
+                        Event? evento = student.Events.FirstOrDefault(x => x.ExternalId == eventResult.Id);
+
+                        var start = eventResult.Start?.UtcDateTime ?? DateTime.MinValue;
+                        var end = eventResult.End?.UtcDateTime ?? DateTime.MinValue;
+
+                        if (evento is null)
+                        {
+                            evento = new Event(eventResult.Id, eventResult.Subject, start, end, student.Id);
+                            student.Events.Add(evento);
+                        }
+                        else
+                        {
+                            evento.Update(eventResult.Subject, start, end);
+                        }
+                    }
+                }
+
+                currentToken = results.NextDeltaLink;
+
+            } while (string.IsNullOrEmpty(results.NextDeltaToken));
+
+            student.UpdateEventsDeltaToken(currentToken);
+
+            return student;
         }
     }
 }

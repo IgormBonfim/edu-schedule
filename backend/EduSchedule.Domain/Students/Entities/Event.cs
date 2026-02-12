@@ -1,6 +1,8 @@
-﻿namespace EduSchedule.Domain.Students.Entities
+﻿using EduSchedule.Domain.Generics.Entities;
+
+namespace EduSchedule.Domain.Students.Entities
 {
-    public class Event
+    public class Event : Entity
     {
         public int Id { get; set; }
         public string ExternalId { get; set; }
@@ -20,6 +22,22 @@
             StartTime = start;
             EndTime = end;
             StudentId = studentId;
+            CreatedAt = DateTime.Now;
+            IsActive = true;
         }
+
+        public void Update(string subject, DateTime start, DateTime end)
+        {
+            Subject = subject;
+            StartTime = start;
+            EndTime = end;
+            UpdatedAt = DateTime.Now;
+        }
+
+        public void Inactivate()
+        {
+            IsActive = false;
+            UpdatedAt = DateTime.Now;
+        } 
     }
 }
