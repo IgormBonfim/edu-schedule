@@ -10,6 +10,7 @@ namespace EduSchedule.Ioc.Extensions
         public static IServiceCollection AddGraph(this IServiceCollection services, IConfiguration configuration)
         {
             var azureAdConfig = configuration.GetSection("AzureAd");
+
             var tenantId = configuration["AzureAd:TenantId"];
 
             if (string.IsNullOrEmpty(tenantId))

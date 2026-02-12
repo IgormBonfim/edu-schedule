@@ -1,17 +1,77 @@
 services:
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: eduschedule-web
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
+    ports:
+      - "5173:80"
+    networks:
+      - eduschedule-network
+
   database:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: eduschedule-sql
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/bin/timeout 1s /bin/bash -c '> /dev/tcp/localhost/1433' || exit 1"]      
+      interval: 10s
+      timeout: 3s
+      retries: 10
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=EduSchedule@2026_Strong!
+      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
       - MSSQL_PID=Developer
+    networks:
+      - eduschedule-network
     ports:
       - "1433:1433"
     volumes:
       - sql-data:/var/opt/mssql
 
+  api:
+    build: 
+      context: .
+      dockerfile: ./backend/EduSchedule.Api/Dockerfile
+    container_name: eduschedule-api
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=database;Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=True
+      - AzureAd__TenantId=${AZURE_TENANT_ID}
+      - AzureAd__ClientId=${AZURE_CLIENT_ID}
+      - AzureAd__ClientSecret=${AZURE_CLIENT_SECRET}
+      - JwtOptions__SecurityKey=${SECURITY_KEY}
+    ports:
+      - "5077:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+        - eduschedule-network
+
+  worker:
+    build: 
+      context: .
+      dockerfile: ./backend/EduSchedule.Worker/Dockerfile
+    container_name: eduschedule-worker
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=database;Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=True
+      - AzureAd__TenantId=${AZURE_TENANT_ID}
+      - AzureAd__ClientId=${AZURE_CLIENT_ID}
+      - AzureAd__ClientSecret=${AZURE_CLIENT_SECRET}
+    ports:
+      - "5077:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+        - eduschedule-network
+
 volumes:
   sql-data:
     driver: local
+
+networks:
+  eduschedule-network:
+    driver: bridge

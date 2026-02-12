@@ -28,6 +28,7 @@
     <Folder Include="Controllers/Auth/" />
     <Folder Include="Controllers/Students/" />
     <Folder Include="Extensions/" />
+    <Folder Include="Filters/" />
   </ItemGroup>
 
 </Project>

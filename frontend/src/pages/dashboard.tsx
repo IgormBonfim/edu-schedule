@@ -20,7 +20,7 @@ export function DashboardPage() {
             <Header />
             <div className="flex flex-1 overflow-hidden">
                 {/* Desktop */}
-                <aside className="hidden w-[380px] shrink-0 border-r border-slate-200/60 bg-white md:flex md:flex-col lg:w-[420px]">
+                <aside className="hidden w-95 shrink-0 border-r border-slate-200/60 bg-white md:flex md:flex-col lg:w-105">
                     <StudentsList selectedStudent={selectedStudent} onSelectStudent={handleSelectStudent} />
                 </aside>
 

@@ -1,4 +1,3 @@
-// src/api/axios-client.ts
 import axios from 'axios';
 import type { AuthState } from '../types/auth-state';
 

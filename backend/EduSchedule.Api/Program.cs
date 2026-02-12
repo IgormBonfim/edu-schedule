@@ -1,6 +1,9 @@
 using EduSchedule.Api.Extensions;
+using EduSchedule.Api.Filters;
+using EduSchedule.Infrastructure.Database;
 using EduSchedule.Ioc;
 using Hangfire;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,14 +20,29 @@ builder.Services.AddCorsPolicy();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<EduScheduleDbContext>();
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocorreu um erro ao aplicar as migrations.");
+    }
 }
 
-app.UseHangfireDashboard("/hangfire");
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = [new AllowAllDashboardAuthorizationFilter()]
+});
 
 app.UseCors("DefaultPolicy");
 

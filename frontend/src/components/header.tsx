@@ -1,6 +1,6 @@
-import { GraduationCap, ChevronDown, User, LogOut } from "lucide-react"
+import { GraduationCap, ChevronDown, LogOut } from "lucide-react"
 import { useAuth } from "../context/auth-context"
-import { Dropdown, DropdownItem, DropdownLabel, DropdownSeparator } from "./ui/dropdown"
+import { Dropdown, DropdownItem, DropdownLabel } from "./ui/dropdown"
 import { Avatar } from "./ui/avatar"
 
 function getInitials(name: string) {

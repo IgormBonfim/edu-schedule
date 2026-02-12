@@ -15,7 +15,7 @@ namespace EduSchedule.Worker.Jobs
             recurringJobManager.AddOrUpdate<ISyncStudentsAppService>(
                 "sync-events-orchestrator", 
                 service => service.StartEventsSyncProcessAsync(default), 
-                Cron.Hourly);
+                Cron.MinuteInterval(75));
         }
     }
 }
