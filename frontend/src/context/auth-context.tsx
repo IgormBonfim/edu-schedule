@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
 import type { AuthState } from "../types/auth-state"
+import { api } from "../api/axios-client"
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>
@@ -8,14 +9,26 @@ interface AuthContextType extends AuthState {
   error: string | null
 }
 
+const getInitialState = (): AuthState => {
+  if (typeof window === "undefined") {
+    return { isAuthenticated: false, user: null, token: null };
+  }
+
+  const stored = sessionStorage.getItem("eduschedule_auth");
+  if (stored) {
+    try {
+      return JSON.parse(stored) as AuthState;
+    } catch {
+      sessionStorage.removeItem("eduschedule_auth");
+    }
+  }
+  return { isAuthenticated: false, user: null, token: null };
+};
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [auth, setAuth] = useState<AuthState>({
-    isAuthenticated: false,
-    user: null,
-    token: null,
-  })
+  const [auth, setAuth] = useState<AuthState>(getInitialState())
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -36,18 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null)
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      })
-
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || "Erro ao fazer login")
-      }
-
-      const data = await res.json()
+      const { data } = await api.post('/auth/login', { email, password });
+      
       const newAuth: AuthState = {
         isAuthenticated: true,
         user: data.user,
@@ -55,9 +58,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setAuth(newAuth)
       sessionStorage.setItem("eduschedule_auth", JSON.stringify(newAuth))
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro desconhecido")
-      throw err
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || err.message || "Erro ao fazer login";
+      setError(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       setIsLoading(false)
     }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { useAuth } from "../context/auth-context";
+import { useNavigate } from "react-router-dom";
 
 export function LoginPage() {
   const { login, isLoading, error } = useAuth()
@@ -11,6 +12,7 @@ export function LoginPage() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault()
@@ -23,6 +25,7 @@ export function LoginPage() {
 
     try {
       await login(email, password)
+      navigate("/dashboard")
     } catch {
 
     }
