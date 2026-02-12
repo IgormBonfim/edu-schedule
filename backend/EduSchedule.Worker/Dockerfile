@@ -1,8 +1,8 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS base
 WORKDIR /app
 COPY . .
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /src
 COPY . .
 RUN dotnet restore "backend/EduSchedule.Worker/EduSchedule.Worker.csproj"

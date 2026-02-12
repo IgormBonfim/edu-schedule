@@ -68,6 +68,14 @@ services:
     networks:
         - eduschedule-network
 
+  tests:
+    build:
+      context: ./backend/EduSchedule.UnitTests/
+      dockerfile: Dockerfile
+    profiles: ["test"]
+    volumes:
+      - .:/app
+
 volumes:
   sql-data:
     driver: local
