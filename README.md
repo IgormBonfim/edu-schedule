@@ -117,3 +117,16 @@ Na raiz do projeto (mesmo local do `docker-compose.yml`), execute o comando abai
 ```bash
 docker compose run --rm test
 ```
+
+## ⚡ Atalhos (Opcional - Linux/Mac/WSL)
+
+Para agilizar o desenvolvimento em ambientes Unix, o projeto inclui um `Makefile`. Se você tiver o `make` instalado, pode utilizar os atalhos abaixo ao invés de digitar os comandos completos do Docker:
+
+| Comando | Equivalente Docker |
+| :--- | :--- |
+| `make up` | `docker compose up --build -d` |
+| `make test` | `docker compose run --rm tests` |
+| `make down` | `docker compose down` |
+| `make logs` | `docker compose logs -f` |
+
+> **Nota:** Estes comandos são apenas atalhos de conveniência. O projeto roda perfeitamente utilizando apenas os comandos nativos do `docker compose` listados nas seções anteriores.
