@@ -2,6 +2,18 @@
 
 Solução desenvolvida para o desafio técnico de Desenvolvedor Fullstack. O objetivo é uma aplicação que sincroniza e lista estudantes e eventos de uma instituição de ensino integrando com o Microsoft Graph API.
 
+## 📑 Índice
+
+- [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [Funcionalidades](#-funcionalidades-implementadas)
+- [Como Rodar com Docker](#-como-rodar-com-docker-recomendado)
+    - [Configuração de Credenciais](#2-configuração-de-credenciais)
+    - [Acessando a Aplicação](#4-acessando-a-aplicação)
+- [Como Rodar os Testes](#-como-rodar-os-testes-unitários)
+- [Atalhos (Makefile)](#-atalhos-opcional---linuxmacwsl)
+
+---
+
 ## 🚀 Tecnologias Utilizadas
 
 ### **Backend (.NET 8)**
@@ -29,6 +41,10 @@ Solução desenvolvida para o desafio técnico de Desenvolvedor Fullstack. O obj
 - [x] **Listagem de Estudantes:** Visualização paginada e performática.
 - [x] **Detalhes da Agenda:** Visualização dos eventos de um estudante específico.
 - [x] **Responsividade:** Interface adaptada para diferentes dispositivos.
+
+## Desenho da arquitetura
+
+![Imagem da arquitetura](docs/Arquitetura.png)
 
 ## 🐳 Como Rodar com Docker (Recomendado)
 
