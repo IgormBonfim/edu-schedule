@@ -107,4 +107,13 @@ Após realizar o login você será redirecionado para o Dashboard, onde é possi
   <img src="docs/Eventos-mobile.webp" width="45%" alt="Detalhes dos Eventos" />
 </p>
 
-## 🐳 Como Rodar os Testes Únitarios
+## 🧪 Como Rodar os Testes Unitários
+
+Para facilitar a avaliação e garantir a consistência do ambiente, os testes unitários foram configurados para rodar dentro de um container Docker isolado. **Não é necessário ter o .NET SDK instalado na sua máquina.**
+
+### Passo Único
+Na raiz do projeto (mesmo local do `docker-compose.yml`), execute o comando abaixo:
+
+```bash
+docker compose run --rm test
+```
