@@ -10,6 +10,7 @@
     <Folder Include="Auth/" />
     <Folder Include="Auth/Services/" />
     <Folder Include="Auth/Services/Interfaces/" />
+    <Folder Include="Generics/Models/" />
   </ItemGroup>
 
 </Project>

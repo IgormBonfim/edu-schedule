@@ -8,6 +8,11 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Generics/Dtos/Requests/" />
+    <Folder Include="Students/Dtos/Requests/" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

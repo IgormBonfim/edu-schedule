@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using EduSchedule.Domain.Generics.Models;
 using EduSchedule.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,9 +45,23 @@ namespace EduSchedule.Infrastructure.Database.Repositories
             return _dbSet.AsQueryable();
         }
 
-        public async Task<IEnumerable<T>> ListarAsync(IQueryable<T> query, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<T>> ToListAsync(IQueryable<T> query, CancellationToken cancellationToken = default)
         {
             return await query.ToListAsync(cancellationToken);
+        }
+
+        public async Task<PaginatedResults<T>> ToListPaginatedAsync(IQueryable<T> query, int itemsPerPage, int page, CancellationToken cancellationToken = default)
+        {
+            int totalItems = await query.CountAsync(cancellationToken);
+
+            int offset = (page - 1) * itemsPerPage;
+            var pagedQuery = query.Skip(offset).Take(itemsPerPage);
+
+            var values = await pagedQuery.ToListAsync(cancellationToken);
+
+            int totalPages = (int)Math.Ceiling((double)totalItems / itemsPerPage);
+
+            return new PaginatedResults<T>(values, totalItems, page, totalPages);
         }
     }
 }

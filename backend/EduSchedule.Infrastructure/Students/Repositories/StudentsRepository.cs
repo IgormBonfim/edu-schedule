@@ -24,5 +24,6 @@ namespace EduSchedule.Infrastructure.Students.Repositories
         {
             return await _dbSet.Include(x => x.Events).FirstOrDefaultAsync(x => x.ExternalId == externaId, cancellationToken);
         }
+
     }
 }
