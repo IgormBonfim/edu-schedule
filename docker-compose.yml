@@ -61,7 +61,7 @@ services:
       - AzureAd__ClientId=${AZURE_CLIENT_ID}
       - AzureAd__ClientSecret=${AZURE_CLIENT_SECRET}
     ports:
-      - "5077:8080"
+      - "5000:8080"
     depends_on:
       database:
         condition: service_healthy
