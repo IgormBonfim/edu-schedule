@@ -1,8 +1,6 @@
-using System.Collections.Frozen;
 using EduSchedule.Application.Students.Jobs.Interfaces;
 using EduSchedule.Domain.Integrations.Models;
 using EduSchedule.Domain.Integrations.Services.Interfaces;
-using EduSchedule.Domain.Repositories;
 using EduSchedule.Domain.States.Entities;
 using EduSchedule.Domain.States.Repositories;
 using EduSchedule.Domain.Students.Entities;
@@ -103,44 +101,44 @@ namespace EduSchedule.Application.Students.Services.Interfaces
 
         public async Task SyncBatchStudentsAsync(IEnumerable<UserResult> users, CancellationToken cancellationToken = default)
         {
-            foreach (UserResult user in users)
-            {
-                await ProcessUserAsync(user, cancellationToken);
+            using (var scope = _scopeFactory.CreateScope())
+            {                    
+                var repo = scope.ServiceProvider.GetRequiredService<IStudentsRepository>();
+
+                foreach (UserResult user in users)
+                {
+                    await ProcessUserAsync(user, repo, cancellationToken);
+                }
             }
         }
 
-        public async Task ProcessUserAsync(UserResult user, CancellationToken cancellationToken = default)
+        public async Task ProcessUserAsync(UserResult user, IStudentsRepository repo, CancellationToken cancellationToken = default)
         {
             try
             {
-                using (var scope = _scopeFactory.CreateScope())
+                Student? student = await repo.GetAsync(x => x.ExternalId == user.Id);
+
+                if (student is null)
                 {
-                    var repo = scope.ServiceProvider.GetRequiredService<IStudentsRepository>();
+                    if (user.IsDeleted) return;
 
-                    Student? student = await repo.GetAsync(x => x.ExternalId == user.Id);
-
-                    if (student is null)
+                    student = new Student(user.Id, user.DisplayName, user.Email);
+                    student = await repo.InsertAsync(student);
+                }
+                else
+                {
+                    if (user.IsDeleted)
                     {
-                        if (user.IsDeleted) return;
-
-                        student = new Student(user.Id, user.DisplayName, user.Email);
-                        student = await repo.InsertAsync(student);
+                        student.Inactivate();
                     }
                     else
                     {
-                        if (user.IsDeleted)
-                        {
-                            student.Inactivate();
-                        }
-                        else
-                        {
-                            student.Update(user.DisplayName, user.Email);
-                        }
-                        await repo.UpdateAsync(student, cancellationToken);
+                        student.Update(user.DisplayName, user.Email);
                     }
-
-                    _logger.LogInformation("Usuário processado com sucesso. IdExterno: {idExterno}", user.Id);
+                    await repo.UpdateAsync(student, cancellationToken);
                 }
+
+                _logger.LogInformation("Usuário processado com sucesso. IdExterno: {idExterno}", user.Id);
             }
             catch (Exception ex)
             {
