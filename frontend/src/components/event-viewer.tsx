@@ -27,7 +27,7 @@ function getDayLabel(dateStr: string): string {
   tomorrow.setDate(now.getDate() + 1)
 
   if (isSameDay(date, now)) return "Hoje"
-  if (isSameDay(date, tomorrow)) return "Amanha"
+  if (isSameDay(date, tomorrow)) return "Amanhã"
 
   return date.toLocaleDateString("pt-BR", {
     weekday: "long",

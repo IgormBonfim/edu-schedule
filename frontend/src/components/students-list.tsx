@@ -178,10 +178,10 @@ const StudentListItem = forwardRef<HTMLDivElement, {
   isSelected: boolean; 
   onSelect: (s: Student) => void 
 }>(({ student, isSelected, onSelect }, ref) => (
-  <div ref={ref} className="cursor-pointer">
+  <div ref={ref}>
     <button
       onClick={() => onSelect(student)}
-      className={`group flex w-full items-start gap-3 rounded-lg p-3 text-left transition-colors ${
+      className={`group flex w-full items-start gap-3 rounded-lg p-3 text-left transition-colors cursor-pointer ${
         isSelected ? "bg-indigo-50 ring-1 ring-indigo-600/20" : "hover:bg-slate-50"
       }`}
     >
