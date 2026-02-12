@@ -83,7 +83,7 @@ export function LoginPage() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label htmlFor="password">Senha</label>
+                <label htmlFor="password" className="text-sm font-medium text-slate-700">Senha</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <Input
